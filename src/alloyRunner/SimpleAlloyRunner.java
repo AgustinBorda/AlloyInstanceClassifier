@@ -27,7 +27,7 @@ public class SimpleAlloyRunner implements AlloyRunner {
         for (Command c : world.getAllCommands()) {
             if (c.label.equals("overspecification") || c.label.equals("underspecification") || c.label.equals("error")) {
                 A4Solution sol = TranslateAlloyToKodkod.execute_command(A4Reporter.NOP, world.getAllReachableSigs(), c, opt);
-                while (sol.satisfiable() && instances < 10000) {
+                while (sol.satisfiable() && instances < 100000) {
                     instances++;
                     sol = sol.next();
                 }
