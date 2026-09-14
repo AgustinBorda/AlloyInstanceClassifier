@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'edu.unrc.exa.dc'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// Source lives in src/ rather than the standard src/main/java/
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Local JARs bundled with the project
+    implementation files('alloy6.jar')
+    implementation files('org.sat4j.core-2.3.1.jar')
+}
+
+application {
+    mainClass = 'Main'
+}
+
+// Executable fat-jar that bundles everything (local JARs included)
+// Usage: ./gradlew jar  →  build/libs/AlloyInstanceClassifier.jar
+jar {
+    archiveBaseName = 'AlloyInstanceClassifier'
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
