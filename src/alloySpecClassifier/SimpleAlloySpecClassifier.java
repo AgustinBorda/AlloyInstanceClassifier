@@ -39,6 +39,8 @@ public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
         int models = 0;
         File[] childs = Objects.requireNonNull(dir.listFiles());
         for (File child: childs) {
+            if(child.isDirectory())
+                continue;
             int instances = 0;
             AlloyModel buggyModel = new FileAlloyModel(child.getPath());
             if (correctModel.hasFacts()) {
