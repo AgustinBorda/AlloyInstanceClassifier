@@ -49,7 +49,7 @@ public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
             if (correctModel.hasFuns()) {
                 instances += runner.runModelAndReturnInstanceQuantity(funGenerator.generateModelForClassification(correctModel, buggyModel, scope));
             }
-            System.out.println("The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
+            System.out.println((models+1) + "/" + Objects.requireNonNull(dir.listFiles()).length + " The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
             totalInstances += instances;
             models++;
             if(instances < 10000)
