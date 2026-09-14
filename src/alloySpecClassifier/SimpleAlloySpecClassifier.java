@@ -37,7 +37,8 @@ public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
         hardSpecs.mkdir();
         long totalInstances = 0;
         int models = 0;
-        for (File child: Objects.requireNonNull(dir.listFiles())) {
+        File[] childs = Objects.requireNonNull(dir.listFiles());
+        for (File child: childs) {
             int instances = 0;
             AlloyModel buggyModel = new FileAlloyModel(child.getPath());
             if (correctModel.hasFacts()) {
@@ -49,7 +50,7 @@ public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
             if (correctModel.hasFuns()) {
                 instances += runner.runModelAndReturnInstanceQuantity(funGenerator.generateModelForClassification(correctModel, buggyModel, scope));
             }
-            System.out.println((models+1) + "/" + Objects.requireNonNull(dir.listFiles()).length + " The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
+            System.out.println((models+1) + "/" + childs.length + " The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
             totalInstances += instances;
             models++;
             if(instances < 10000)
