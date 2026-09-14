@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
@@ -35,27 +36,32 @@ public class SimpleAlloySpecClassifier implements AlloySpecClassifier {
         File dir = new File(buggyModelsPath);
         File hardSpecs = new File(buggyModelsPath + "/hard");
         hardSpecs.mkdir();
-        long totalInstances = 0;
-        int models = 0;
         File[] childs = Objects.requireNonNull(dir.listFiles());
-        for (File child: childs) {
-            int instances = 0;
-            AlloyModel buggyModel = new FileAlloyModel(child.getPath());
-            if (correctModel.hasFacts()) {
-                instances += runner.runModelAndReturnInstanceQuantity(factGenerator.generateModelForClassification(correctModel, buggyModel, scope));
+        Arrays.stream(childs).parallel().forEach(child -> {
+            try {
+                executeForOneCase(correctModel, child, scope, hardSpecs);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            if (correctModel.hasPreds()) {
-                instances += runner.runModelAndReturnInstanceQuantity(predGenerator.generateModelForClassification(correctModel, buggyModel, scope));
-            }
-            if (correctModel.hasFuns()) {
-                instances += runner.runModelAndReturnInstanceQuantity(funGenerator.generateModelForClassification(correctModel, buggyModel, scope));
-            }
-            System.out.println((models+1) + "/" + childs.length + " The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
-            totalInstances += instances;
-            models++;
-            if(instances < 10000)
-                Files.copy(Paths.get(child.getAbsolutePath()), Paths.get(hardSpecs.getAbsolutePath() + "/" + child.getName()));
-        }
-        System.out.println("Average " + totalInstances/models);
+        });
     }
+
+
+    private void executeForOneCase(AlloyModel correctModel, File child, int scope, File hardSpecs) throws IOException {
+        int instances = 0;
+        AlloyModel buggyModel = new FileAlloyModel(child.getPath());
+        if (correctModel.hasFacts()) {
+            instances += runner.runModelAndReturnInstanceQuantity(factGenerator.generateModelForClassification(correctModel, buggyModel, scope));
+        }
+        if (correctModel.hasPreds()) {
+            instances += runner.runModelAndReturnInstanceQuantity(predGenerator.generateModelForClassification(correctModel, buggyModel, scope));
+        }
+        if (correctModel.hasFuns()) {
+            instances += runner.runModelAndReturnInstanceQuantity(funGenerator.generateModelForClassification(correctModel, buggyModel, scope));
+        }
+        System.out.println( " The model " + child.getName() + (instances == 10000 ? " has >=": " has ") + instances + " bug-revealing instances.");
+        if(instances < 10000)
+            Files.copy(Paths.get(child.getAbsolutePath()), Paths.get(hardSpecs.getAbsolutePath() + "/" + child.getName()));
+    }
+
 }
