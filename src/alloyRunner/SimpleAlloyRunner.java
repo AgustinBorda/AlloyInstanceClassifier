@@ -18,6 +18,7 @@ public class SimpleAlloyRunner implements AlloyRunner {
         opt = new A4Options();
         opt.solver = A4Options.SatSolver.SAT4J;
         opt.noOverflow = true;
+        opt.symmetry = 1000000000;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class SimpleAlloyRunner implements AlloyRunner {
         for (Command c : world.getAllCommands()) {
             if (c.label.equals("overspecification") || c.label.equals("underspecification") || c.label.equals("error")) {
                 A4Solution sol = TranslateAlloyToKodkod.execute_command(A4Reporter.NOP, world.getAllReachableSigs(), c, opt);
-                while (sol.satisfiable() && instances < 50000) {
+                while (sol.satisfiable() && instances < 10000) {
                     instances++;
                     sol = sol.next();
                 }
